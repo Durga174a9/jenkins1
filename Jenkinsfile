@@ -19,5 +19,10 @@ pipeline{
                 echo "hello from 3rd"
             }
         }
+        stage("4rd stage"){
+            steps{
+                echo "hello from 4th "
+            }
+        }
     }
 }
