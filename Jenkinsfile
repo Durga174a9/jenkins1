@@ -1,5 +1,13 @@
 pipeline{
     agent any
+    environment {
+        name= 'Durga' // we can define "ENV" there so that we can access those env value with in the pipeline
+    }
+
+    options {
+        //timeout(time: 1, unit: 'SECONDS') // it defines with in give time pipleline need to execute , It not pipeline will mark as ABORTED
+        disableConcurrentBuilds() // if you specify this option then we can't build this pipleline twice at same time 
+    }
 
     stages{
         stage("1st stage"){
@@ -16,13 +24,31 @@ pipeline{
 
         stage("3rd stage"){
             steps{
-                echo "hello from 3rd"
+                sh """ 
+                    echo "Hello from 3rd state"
+                    echo "Printing env $name"
+                    sleep 10 
+                """
             }
         }
         stage("4rd stage"){
             steps{
                 echo "hello from 4th "
             }
+        }
+    }
+    
+    post{
+        always{
+            echo "This will execute always"
+        }
+
+        success{
+            echo " This will execute only on success"
+        }
+
+        failure{
+            echo "This will execute when pipeline failes"
         }
     }
 }
