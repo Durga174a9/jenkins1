@@ -1,54 +1,93 @@
-pipeline{
+pipeline {
     agent any
-    environment {
-        name= 'Durga' // we can define "ENV" there so that we can access those env value with in the pipeline
-    }
 
     options {
-        //timeout(time: 1, unit: 'SECONDS') // it defines with in give time pipleline need to execute , It not pipeline will mark as ABORTED
-        disableConcurrentBuilds() // if you specify this option then we can't build this pipleline twice at same time 
+        disableConcurrentBuilds()
+        timeout(time: 1,unit: 'HOURS') 
     }
 
-    stages{
-        stage("1st stage"){
-            steps{
-                echo "hello from 1st"
-            }
-        }
+    parameters{
+         choice(name: 'Action', choices: ['apply','destroy'], description: 'Pick something')
+    }
 
-        stage("2nd stage"){
-            steps{
-                echo "hello from 2nd"
+    stages {
+        stage("init stage") {
+            when {
+                expression {
+                    params.Action == 'apply'
+                }
             }
-        }
-
-        stage("3rd stage"){
-            steps{
-                sh """ 
-                    echo "Hello from 3rd state"
-                    echo "Printing env $name"
-                    sleep 10 
+            steps {
+                sh"""
+                    cd vpc
+                    cd vpc-test
+                    terraform init -reconfigure
                 """
             }
         }
-        stage("4rd stage"){
+
+        stage("Plan stage") {
+            when {
+                expression {
+                    params.Action == 'apply'
+                }
+            }
             steps{
-                echo "hello from 4th "
+                sh """
+                    cd vpc
+                    cd vpc-test
+                    terraform plan
+                """
+            }
+        }
+
+        stage("apply stage") {
+            when {
+                expression {
+                   params.Action == 'apply'
+                }
+            }
+            input {
+                message "Should we continue?"
+                ok "Yes, we should."
+            } 
+            steps {
+                sh """
+                    cd vpc
+                    cd vpc-test
+                    terraform apply -auto-approve
+                """
+            }
+        }
+
+        stage("Destroy") {
+            when {
+                expression {
+                    params.Action == 'destroy'
+                }
+            }
+            steps {
+                sh """
+                    cd vpc
+                    cd vpc-test
+                    terrafrom destroy -autp-approve
+                """
             }
         }
     }
-    
+
     post{
-        always{
+
+        always {
             echo "This will execute always"
         }
 
-        success{
-            echo " This will execute only on success"
+        success {
+            echo "Hey this pipleline execute successfully"
         }
 
-        failure{
-            echo "This will execute when pipeline failes"
+        failure {
+            echo "hey this pipleline not executed as planned "
         }
     }
 }
