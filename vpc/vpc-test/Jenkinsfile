@@ -20,7 +20,7 @@ pipeline {
             steps {
                 sh"""
                     cd vpc
-                    cd vcp-test
+                    cd vpc-test
                     terraform init -reconfigure
                 """
             }
@@ -35,7 +35,7 @@ pipeline {
             steps{
                 sh """
                     cd vpc
-                    cd vcp-test
+                    cd vpc-test
                     terraform plan
                 """
             }
@@ -54,7 +54,7 @@ pipeline {
             steps {
                 sh """
                     cd vpc
-                    cd vcp-test
+                    cd vpc-test
                     terraform apply -auto-approve
                 """
             }
