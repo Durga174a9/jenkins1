@@ -6,7 +6,7 @@ pipeline {
     }
 
     environment {
-        packageVersion = ''
+        packageVersion = '1.2.0'
         nexusurl = 'http://3.239.39.222:8081/repository/catalogue/'
     }
     stages {
@@ -20,8 +20,8 @@ pipeline {
         stage('getting Version') {
             steps {
                 script {
-                    def packagejson = readJSON file: 'package.json'
-                    packageVersion = packagejson.version
+                    //def packagejson = readJSON file: 'package.json'
+                    //packageVersion = packagejson.version
                     echo "$packageVersion"
                 }
             }
