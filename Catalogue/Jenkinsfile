@@ -10,6 +10,13 @@ pipeline {
         nexusurl = 'http://3.239.39.222:8081/repository/catalogue/'
     }
     stages {
+        stage("hello mate") {
+            steps{
+                sh """
+                    echo "Hello mate"
+                """
+            }
+        }
         stage('getting Version') {
             steps {
                 script {
