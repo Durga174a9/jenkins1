@@ -1,0 +1,76 @@
+pipeline {
+    agent {
+        node {
+            LABEL 'AGENT-1'
+        }
+    }
+
+    environment {
+        packageVersion = ''
+        nexusurl = 'http://3.239.39.222:8081/repository/catalogue/'
+    }
+    stages {
+        stage('getting Version') {
+            steps {
+                script {
+                    def packagejson = readJSON file: 'package.json'
+                    packageVersion = packagejson.version
+                }
+            }
+        }
+        stage('Installing Dependencies') {
+            steps {
+                sh """
+                    npm install
+                """
+            }
+        }
+
+        stage('Build stage') {
+            steps {
+                sh """
+                    ls -la
+                    zip -q -r catalogue.zip ./* -x ".git" -x "*.zip"
+                    ls -lrt
+                """
+            }
+        }
+
+        stage('Nexas uploader') {
+            steps {
+                 nexusArtifactUploader(
+                    nexusVersion: 'nexus3',
+                    protocol: 'http',
+                    nexusUrl: "${nexusurl}",
+                    groupId: 'com.roboshop',
+                    version: "${packageVersion}",
+                    repository: 'catalogue',
+                    credentialsId: 'nexus-auth',
+                    artifacts: [
+                        [artifactId: catalogue,   
+                        classifier: '',
+                        file: 'catalogue.zip',
+                        type: 'zip']
+                    ]
+                )
+                
+            }
+        }
+
+    }
+
+    post {
+        always{
+            echo "Hello always"
+            deleteDir()
+        }
+
+        success {
+            echo "Hello if pipeline is success"
+        }
+
+        failure{
+            echo "Hello if pipeline fails"
+        }
+    }
+}
